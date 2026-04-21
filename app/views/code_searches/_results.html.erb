@@ -1,0 +1,31 @@
+<div class="mb-4 text-sm text-ink/60">
+  <strong><%= results.length %></strong> result<%= "s" if results.length != 1 %>
+  for <span class="font-mono text-ink">"<%= search.query_text %>"</span>
+  in <%= search.execution_ms %>ms
+</div>
+
+<% if results.any? %>
+  <ul class="space-y-3">
+    <% results.each_with_index do |r, i| %>
+      <li class="card">
+        <div class="flex items-baseline justify-between">
+          <div class="font-mono text-sm">
+            <span class="text-ink/40"><%= i + 1 %>.</span>
+            <span><%= r.file_path %></span>
+            <span class="text-ink/50 text-xs">:<%= r.start_line %>-<%= r.end_line %></span>
+          </div>
+          <div class="text-xs text-ink/60">
+            <% pct = (r.similarity * 100).round(1) %>
+            <span class="pill font-mono"><%= pct %>% match</span>
+            <% if r.language.present? %><span class="pill"><%= r.language %></span><% end %>
+          </div>
+        </div>
+        <pre class="mt-3 text-xs bg-ink/5 p-3 rounded overflow-x-auto whitespace-pre-wrap"><%= r.preview %></pre>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <div class="card text-ink/60 text-center py-8">
+    No matches found. Try rephrasing — semantic search responds to intent, not keywords.
+  </div>
+<% end %>

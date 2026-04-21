@@ -1,0 +1,42 @@
+<% content_for :title, "Code search — #{@repository.full_name}" %>
+
+<div class="mb-6">
+  <div class="text-sm text-ink/60">
+    <%= link_to @repository.full_name, @repository, class: "hover:text-accent font-mono" %>
+  </div>
+  <h1 class="text-2xl font-semibold mt-1">Semantic code search</h1>
+  <p class="text-ink/60 text-sm mt-1">Ask by meaning, not by keyword. Results ranked by cosine similarity.</p>
+</div>
+
+<% unless @repository.indexed? %>
+  <div class="card border-yellow-300 bg-yellow-50 mb-6">
+    <strong>Repository not yet indexed.</strong>
+    Current status: <%= render "shared/indexing_pill", repo: @repository %>.
+    Search will be available once indexing completes.
+  </div>
+<% end %>
+
+<%= form_with url: repository_code_searches_path(@repository), method: :post, class: "mb-6" do |f| %>
+  <div class="flex gap-2">
+    <%= f.text_area :query_text,
+          rows: 1,
+          placeholder: "e.g. where do we authenticate API requests?",
+          data: { controller: "autoresize", action: "input->autoresize#resize" },
+          class: "flex-1 px-3 py-2 border border-ink/20 rounded font-mono text-sm focus:outline-none focus:border-accent" %>
+    <%= f.submit "Search", class: "btn-primary", disabled: !@repository.indexed? %>
+  </div>
+<% end %>
+
+<div id="search_results">
+  <% if @recent_searches.any? %>
+    <h2 class="text-xs uppercase tracking-wider text-ink/60 mb-2">Recent searches</h2>
+    <ul class="space-y-1 text-sm">
+      <% @recent_searches.each do |s| %>
+        <li class="flex items-center justify-between py-1 border-b border-ink/5">
+          <span class="font-mono"><%= s.query_text %></span>
+          <span class="text-xs text-ink/50"><%= s.result_count %> results · <%= time_ago_in_words(s.created_at) %> ago</span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

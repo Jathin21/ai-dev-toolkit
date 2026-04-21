@@ -1,0 +1,65 @@
+<% content_for :title, "Dashboard" %>
+
+<div class="mb-8">
+  <h1 class="text-3xl font-semibold">Dashboard</h1>
+  <p class="text-ink/60 mt-1">Your indexed repositories, recent PR summaries, and search history.</p>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <% [[:repositories, "Repos"], [:indexed, "Indexed"], [:embeddings, "Chunks"], [:summaries, "AI summaries"]].each do |key, label| %>
+    <div class="card">
+      <div class="text-xs text-ink/60 uppercase tracking-wider"><%= label %></div>
+      <div class="text-3xl font-display font-semibold mt-1"><%= number_with_delimiter(@stats[key]) %></div>
+    </div>
+  <% end %>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6">
+  <section>
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-lg font-semibold">Repositories</h2>
+      <%= link_to "Add repository", new_repository_path, class: "btn-primary" %>
+    </div>
+
+    <% if @repositories.any? %>
+      <ul class="space-y-2">
+        <% @repositories.each do |repo| %>
+          <li class="card flex items-center justify-between">
+            <div>
+              <%= link_to repo.full_name, repo, class: "font-mono hover:text-accent" %>
+              <div class="text-xs text-ink/60 mt-0.5">
+                <%= render "shared/indexing_pill", repo: repo %>
+                <%= number_with_delimiter(repo.embeddings_count) %> chunks ·
+                <%= number_with_delimiter(repo.pull_requests_count) %> PRs
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-ink/60">No repositories yet. Add one to start indexing.</p>
+    <% end %>
+  </section>
+
+  <section>
+    <h2 class="text-lg font-semibold mb-3">Recent pull requests</h2>
+    <% if @recent_prs.any? %>
+      <ul class="space-y-2">
+        <% @recent_prs.each do |pr| %>
+          <li class="card">
+            <%= link_to [pr.repository, pr], class: "font-medium hover:text-accent" do %>
+              <%= pr.repository.full_name %>#<%= pr.number %>
+            <% end %>
+            <div class="text-sm mt-0.5"><%= pr.title %></div>
+            <div class="text-xs text-ink/60 mt-1">
+              <%= render "shared/ai_status_pill", pr: pr %>
+              <%= pr.state %> · <%= pr.author_login %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-ink/60">No pull requests synced yet.</p>
+    <% end %>
+  </section>
+</div>

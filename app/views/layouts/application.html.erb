@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title><%= content_for(:title) || "AI-Native Developer Toolkit" %></title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  </head>
+
+  <body class="min-h-screen">
+    <header class="border-b border-ink/10 bg-white">
+      <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <%= link_to root_path, class: "flex items-center gap-2 font-display font-semibold" do %>
+          <span class="inline-block w-2 h-2 bg-accent rounded-full"></span>
+          <span>ai-dev-toolkit</span>
+        <% end %>
+
+        <% if user_signed_in? %>
+          <nav class="flex items-center gap-4 text-sm">
+            <%= link_to "Dashboard",    root_path,         class: "hover:text-accent" %>
+            <%= link_to "Repositories", repositories_path, class: "hover:text-accent" %>
+            <% if current_user.admin? %>
+              <%= link_to "Sidekiq", "/sidekiq", class: "hover:text-accent" %>
+            <% end %>
+            <span class="text-ink/60"><%= current_user.email %></span>
+            <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "btn" %>
+          </nav>
+        <% end %>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-8">
+      <% if flash[:notice] %><div class="mb-4 p-3 bg-green-50 border border-green-300 text-green-900 rounded"><%= flash[:notice] %></div><% end %>
+      <% if flash[:alert]  %><div class="mb-4 p-3 bg-red-50   border border-red-300   text-red-900   rounded"><%= flash[:alert]  %></div><% end %>
+
+      <%= yield %>
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-6 py-12 text-xs text-ink/50">
+      ai-dev-toolkit · MIT licensed · <%= link_to "docs", "/docs/README.md", class: "underline" %>
+    </footer>
+  </body>
+</html>

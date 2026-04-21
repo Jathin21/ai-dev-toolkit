@@ -1,0 +1,76 @@
+<% content_for :title, @repository.full_name %>
+
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <div class="text-sm text-ink/60"><%= link_to "Repositories", repositories_path, class: "hover:text-accent" %> / </div>
+    <h1 class="text-2xl font-display font-semibold font-mono"><%= @repository.full_name %></h1>
+    <div class="mt-2 flex items-center gap-2 text-sm">
+      <%= render "shared/indexing_pill", repo: @repository %>
+      <span class="text-ink/60"><%= number_with_delimiter(@repository.embeddings_count) %> chunks indexed</span>
+      <% if @repository.last_indexed_at %>
+        <span class="text-ink/60">· last indexed <%= time_ago_in_words(@repository.last_indexed_at) %> ago</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <%= button_to "Sync PRs",  sync_repository_path(@repository),     method: :post, class: "btn" %>
+    <%= button_to "Reindex",   reindex_repository_path(@repository),  method: :post, class: "btn" %>
+    <%= button_to "Remove", repository_path(@repository),
+          method: :delete, class: "btn text-red-700",
+          form: { data: { turbo_confirm: "Remove this repository and all its data?" } } %>
+  </div>
+</div>
+
+<% if @repository.last_error.present? %>
+  <div class="card border-red-300 bg-red-50 mb-6">
+    <div class="text-xs uppercase text-red-700 mb-1">Last error</div>
+    <pre class="text-sm whitespace-pre-wrap"><%= @repository.last_error %></pre>
+  </div>
+<% end %>
+
+<div class="grid md:grid-cols-3 gap-4 mb-8">
+  <%= link_to repository_code_searches_path(@repository), class: "card hover:border-accent transition" do %>
+    <div class="text-xs uppercase tracking-wider text-ink/60">Semantic search</div>
+    <div class="mt-1 font-medium">Find code by meaning</div>
+    <div class="text-sm text-ink/60 mt-1">"where do we rate-limit the API?"</div>
+  <% end %>
+
+  <%= link_to repository_queries_path(@repository), class: "card hover:border-accent transition" do %>
+    <div class="text-xs uppercase tracking-wider text-ink/60">Natural-language query</div>
+    <div class="mt-1 font-medium">Ask about your data</div>
+    <div class="text-sm text-ink/60 mt-1">"how many PRs merged last week?"</div>
+  <% end %>
+
+  <%= link_to repository_pull_requests_path(@repository), class: "card hover:border-accent transition" do %>
+    <div class="text-xs uppercase tracking-wider text-ink/60">Pull requests</div>
+    <div class="mt-1 font-medium"><%= @repository.pull_requests.open_prs.count %> open · <%= @repository.pull_requests.count %> total</div>
+    <div class="text-sm text-ink/60 mt-1">AI summaries and review notes</div>
+  <% end %>
+</div>
+
+<section>
+  <h2 class="text-lg font-semibold mb-3">Recent pull requests</h2>
+  <% if @pull_requests.any? %>
+    <ul class="space-y-2">
+      <% @pull_requests.each do |pr| %>
+        <li class="card">
+          <div class="flex items-baseline justify-between">
+            <%= link_to [@repository, pr], class: "font-medium hover:text-accent" do %>
+              #<%= pr.number %> <%= pr.title %>
+            <% end %>
+            <span class="text-xs text-ink/60"><%= pr.pr_updated_at&.to_date %></span>
+          </div>
+          <div class="text-xs text-ink/60 mt-1 flex items-center gap-2">
+            <%= render "shared/ai_status_pill", pr: pr %>
+            <span><%= pr.state %></span>
+            <span>· <%= pr.author_login %></span>
+            <span>· +<%= pr.additions %>/−<%= pr.deletions %></span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-ink/60">No pull requests synced yet. Click <strong>Sync PRs</strong> to fetch them from GitHub.</p>
+  <% end %>
+</section>

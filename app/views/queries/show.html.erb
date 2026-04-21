@@ -1,0 +1,11 @@
+<% content_for :title, "Query ##{@query.id}" %>
+
+<div class="mb-6">
+  <div class="text-sm text-ink/60">
+    <%= link_to @repository.full_name, @repository, class: "hover:text-accent font-mono" %> /
+    <%= link_to "Queries", repository_queries_path(@repository), class: "hover:text-accent" %>
+  </div>
+  <h1 class="text-2xl font-semibold mt-1 font-mono"><%= @query.question %></h1>
+</div>
+
+<%= render "result", query: @query %>

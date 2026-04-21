@@ -1,0 +1,9 @@
+sync_repositories:
+  cron: "*/15 * * * *"            # every 15 minutes
+  class: "SyncAllRepositoriesJob"
+  description: "Pull latest commits and PRs for all tracked repositories"
+
+reindex_stale_embeddings:
+  cron: "0 3 * * *"               # daily at 03:00 UTC
+  class: "ReindexStaleEmbeddingsJob"
+  description: "Refresh code embeddings older than 30 days"

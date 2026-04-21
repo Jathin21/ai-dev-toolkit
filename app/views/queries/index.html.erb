@@ -1,0 +1,43 @@
+<% content_for :title, "Ask — #{@repository.full_name}" %>
+
+<div class="mb-6">
+  <div class="text-sm text-ink/60">
+    <%= link_to @repository.full_name, @repository, class: "hover:text-accent font-mono" %>
+  </div>
+  <h1 class="text-2xl font-semibold mt-1">Ask your data</h1>
+  <p class="text-ink/60 text-sm mt-1">
+    Natural-language questions answered with read-only SQL.
+    <%= link_to "How this works", "/docs/SECURITY.md", class: "underline hover:text-accent" %>.
+  </p>
+</div>
+
+<%= form_with url: repository_queries_path(@repository), method: :post, class: "mb-6" do |f| %>
+  <div class="flex gap-2">
+    <%= f.text_area :question,
+          rows: 2,
+          placeholder: "e.g. which authors have merged the most PRs in the last 30 days?",
+          data: { controller: "autoresize", action: "input->autoresize#resize" },
+          class: "flex-1 px-3 py-2 border border-ink/20 rounded font-mono text-sm focus:outline-none focus:border-accent" %>
+    <%= f.submit "Ask", class: "btn-primary" %>
+  </div>
+<% end %>
+
+<div id="query_result"></div>
+
+<% if @queries.any? %>
+  <h2 class="text-xs uppercase tracking-wider text-ink/60 mt-8 mb-2">Recent questions</h2>
+  <ul class="space-y-1 text-sm">
+    <% @queries.each do |q| %>
+      <li class="flex items-center justify-between py-1 border-b border-ink/5">
+        <%= link_to repository_query_path(@repository, q), class: "hover:text-accent truncate" do %>
+          <span class="font-mono"><%= truncate(q.question, length: 80) %></span>
+        <% end %>
+        <span class="text-xs text-ink/50">
+          <% klass = { "completed" => "pill-ok", "rejected" => "pill-warn", "failed" => "pill-err" }[q.status] || "pill" %>
+          <span class="<%= klass %>"><%= q.status %></span>
+          <%= q.row_count %> rows · <%= time_ago_in_words(q.created_at) %> ago
+        </span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

@@ -1,0 +1,91 @@
+<div class="space-y-4">
+  <% case query.status %>
+  <% when "completed" %>
+    <% if query.explanation.present? %>
+      <div class="card border-accent/30 bg-accent/5">
+        <div class="text-xs uppercase tracking-wider text-accent mb-1">Answer</div>
+        <p class="text-sm leading-relaxed"><%= query.explanation %></p>
+      </div>
+    <% end %>
+
+    <div class="card">
+      <div class="flex items-baseline justify-between mb-2">
+        <div class="text-xs uppercase tracking-wider text-ink/60">Generated SQL</div>
+        <button class="btn text-xs"
+                data-controller="clipboard"
+                data-clipboard-source-value="#generated-sql-<%= query.id %>"
+                data-action="click->clipboard#copy">Copy</button>
+      </div>
+      <pre id="generated-sql-<%= query.id %>" class="text-xs bg-ink/5 p-3 rounded overflow-x-auto"><code><%= query.generated_sql %></code></pre>
+      <div class="mt-2 text-xs text-ink/50">
+        <%= query.row_count %> row<%= "s" if query.row_count != 1 %> ·
+        <%= query.execution_ms %>ms ·
+        executed read-only under 5s statement timeout
+      </div>
+    </div>
+
+    <% if query.result_rows.any? %>
+      <div class="card overflow-x-auto">
+        <table class="w-full text-xs font-mono">
+          <thead class="border-b border-ink/10">
+            <tr>
+              <% query.result_columns.each do |col| %>
+                <th class="text-left py-2 pr-4 text-ink/60 uppercase tracking-wider"><%= col %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% query.result_rows.first(50).each do |row| %>
+              <tr class="border-b border-ink/5">
+                <% row.each do |val| %>
+                  <td class="py-1.5 pr-4 align-top"><%= val.nil? ? '<em class="text-ink/40">NULL</em>'.html_safe : val.to_s %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <% if query.result_rows.length > 50 %>
+          <div class="text-xs text-ink/60 mt-2">Showing first 50 of <%= query.row_count %> rows.</div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="card text-ink/60 text-center py-6">Query returned no rows.</div>
+    <% end %>
+
+  <% when "rejected" %>
+    <div class="card border-yellow-300 bg-yellow-50">
+      <div class="text-yellow-900 font-medium mb-1">Query rejected by the security validator.</div>
+      <p class="text-sm text-yellow-800"><%= query.error_message %></p>
+      <p class="text-xs text-yellow-700 mt-2">
+        The generated SQL violated a rule (non-SELECT, forbidden keyword, or off-limits table).
+        Try rephrasing — read-only analytical questions work best.
+      </p>
+      <% if query.generated_sql.present? %>
+        <details class="mt-3">
+          <summary class="text-xs cursor-pointer">Show rejected SQL</summary>
+          <pre class="text-xs bg-white p-2 mt-2 rounded overflow-x-auto"><%= query.generated_sql %></pre>
+        </details>
+      <% end %>
+    </div>
+
+  <% when "failed" %>
+    <div class="card border-red-300 bg-red-50">
+      <div class="text-red-900 font-medium mb-1">Query failed at execution.</div>
+      <pre class="text-xs text-red-800 whitespace-pre-wrap"><%= query.error_message %></pre>
+      <% if query.generated_sql.present? %>
+        <details class="mt-3">
+          <summary class="text-xs cursor-pointer">Show attempted SQL</summary>
+          <pre class="text-xs bg-white p-2 mt-2 rounded overflow-x-auto"><%= query.generated_sql %></pre>
+        </details>
+      <% end %>
+    </div>
+
+  <% else %>
+    <div class="card text-ink/60">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+        Generating SQL…
+      </div>
+    </div>
+  <% end %>
+</div>

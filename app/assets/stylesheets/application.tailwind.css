@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-family: theme('fontFamily.sans'); }
+  pre, code { font-family: theme('fontFamily.mono'); }
+  body { @apply bg-paper text-ink antialiased; }
+  h1, h2, h3 { @apply font-display tracking-tight; }
+}
+
+@layer components {
+  .btn       { @apply inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded border border-ink/20 bg-white hover:bg-ink hover:text-paper transition; }
+  .btn-primary { @apply btn bg-ink text-paper hover:bg-accent border-ink; }
+  .card      { @apply bg-white border border-ink/10 rounded p-4; }
+  .pill      { @apply inline-block text-xs px-2 py-0.5 rounded-full border border-ink/20 bg-white; }
+  .pill-ok   { @apply pill bg-green-50 text-green-900 border-green-300; }
+  .pill-warn { @apply pill bg-yellow-50 text-yellow-900 border-yellow-300; }
+  .pill-err  { @apply pill bg-red-50 text-red-900 border-red-300; }
+  .kbd       { @apply font-mono text-xs px-1.5 py-0.5 border border-ink/20 rounded bg-white; }
+}

@@ -1,0 +1,36 @@
+<% content_for :title, "Repositories" %>
+
+<div class="flex items-baseline justify-between mb-6">
+  <h1 class="text-2xl font-semibold">Repositories</h1>
+  <%= link_to "Add repository", new_repository_path, class: "btn-primary" %>
+</div>
+
+<% if @repositories.any? %>
+  <table class="w-full text-sm">
+    <thead class="text-xs uppercase tracking-wider text-ink/60 border-b border-ink/10">
+      <tr>
+        <th class="text-left py-2">Repository</th>
+        <th class="text-left py-2">Status</th>
+        <th class="text-right py-2">Chunks</th>
+        <th class="text-right py-2">PRs</th>
+        <th class="text-right py-2">Last indexed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @repositories.each do |repo| %>
+        <tr class="border-b border-ink/5">
+          <td class="py-2"><%= link_to repo.full_name, repo, class: "font-mono hover:text-accent" %></td>
+          <td class="py-2"><%= render "shared/indexing_pill", repo: repo %></td>
+          <td class="py-2 text-right font-mono"><%= number_with_delimiter(repo.embeddings_count) %></td>
+          <td class="py-2 text-right font-mono"><%= number_with_delimiter(repo.pull_requests_count) %></td>
+          <td class="py-2 text-right text-ink/60"><%= repo.last_indexed_at ? time_ago_in_words(repo.last_indexed_at) + " ago" : "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="card text-center py-12">
+    <p class="text-ink/60 mb-4">You haven't added any repositories yet.</p>
+    <%= link_to "Add your first repository", new_repository_path, class: "btn-primary" %>
+  </div>
+<% end %>

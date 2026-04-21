@@ -1,0 +1,44 @@
+<% content_for :title, "Pull requests — #{@repository.full_name}" %>
+
+<div class="mb-6">
+  <div class="text-sm text-ink/60">
+    <%= link_to "Repositories", repositories_path, class: "hover:text-accent" %> /
+    <%= link_to @repository.full_name, @repository, class: "hover:text-accent font-mono" %>
+  </div>
+  <h1 class="text-2xl font-semibold mt-1">Pull requests</h1>
+</div>
+
+<nav class="mb-4 flex gap-2 text-sm">
+  <% %w[all open closed merged].each do |state| %>
+    <% active = (params[:state] || "all") == state %>
+    <%= link_to state.titleize,
+          repository_pull_requests_path(@repository, state: state == "all" ? nil : state),
+          class: "px-3 py-1 rounded border #{active ? 'bg-ink text-paper border-ink' : 'border-ink/20 hover:border-accent'}" %>
+  <% end %>
+</nav>
+
+<% if @pull_requests.any? %>
+  <ul class="space-y-2">
+    <% @pull_requests.each do |pr| %>
+      <li class="card">
+        <div class="flex items-baseline justify-between">
+          <%= link_to [@repository, pr], class: "font-medium hover:text-accent" do %>
+            #<%= pr.number %> <%= pr.title %>
+          <% end %>
+          <span class="text-xs text-ink/60"><%= pr.pr_updated_at&.to_date %></span>
+        </div>
+        <div class="text-xs text-ink/60 mt-1 flex items-center gap-2">
+          <%= render "shared/ai_status_pill", pr: pr %>
+          <span class="pill"><%= pr.state %></span>
+          <span>by <%= pr.author_login %></span>
+          <span>· +<%= pr.additions %>/−<%= pr.deletions %> across <%= pr.changed_files %> files</span>
+        </div>
+        <% if pr.ai_summary.present? %>
+          <p class="mt-2 text-sm text-ink/80"><%= truncate(pr.ai_summary, length: 220) %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-ink/60">No pull requests match.</p>
+<% end %>

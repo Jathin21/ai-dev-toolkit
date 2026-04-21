@@ -1,0 +1,62 @@
+<section id="pull_request_<%= pull_request.id %>_summary" class="mt-6">
+  <div class="flex items-baseline justify-between mb-3">
+    <h2 class="text-lg font-semibold">AI summary</h2>
+    <%= button_to "Regenerate",
+          summarize_repository_pull_request_path(pull_request.repository, pull_request),
+          method: :post, class: "btn text-sm" %>
+  </div>
+
+  <% case pull_request.ai_status %>
+  <% when "completed" %>
+    <div class="card">
+      <% risk = pull_request.ai_metadata["risk_level"] %>
+      <% if risk.present? %>
+        <% klass = { "low" => "pill-ok", "medium" => "pill-warn", "high" => "pill-err" }[risk] || "pill" %>
+        <div class="mb-3"><span class="<%= klass %>">Risk: <%= risk %></span>
+          <% (pull_request.ai_metadata["areas"] || []).each do |a| %>
+            <span class="pill font-mono text-xs"><%= a %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="prose max-w-none">
+        <p class="text-sm leading-relaxed"><%= simple_format(pull_request.ai_summary) %></p>
+      </div>
+
+      <% if pull_request.ai_review_notes.present? %>
+        <div class="mt-4 border-t border-ink/10 pt-4">
+          <div class="text-xs uppercase tracking-wider text-ink/60 mb-2">Reviewer notes</div>
+          <div class="prose max-w-none text-sm"><%= simple_format(pull_request.ai_review_notes) %></div>
+        </div>
+      <% end %>
+
+      <% if pull_request.ai_metadata["test_coverage"].present? %>
+        <div class="mt-4 border-t border-ink/10 pt-4">
+          <div class="text-xs uppercase tracking-wider text-ink/60 mb-1">Test coverage</div>
+          <p class="text-sm"><%= pull_request.ai_metadata["test_coverage"] %></p>
+        </div>
+      <% end %>
+
+      <div class="mt-4 text-xs text-ink/50">
+        Generated <%= time_ago_in_words(pull_request.ai_generated_at) %> ago
+        with <%= pull_request.ai_metadata["model"] || "OpenAI" %>
+      </div>
+    </div>
+
+  <% when "running", "pending" %>
+    <div class="card text-ink/60">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+        Generating summary… this page will update automatically when it's ready.
+      </div>
+    </div>
+
+  <% when "failed" %>
+    <div class="card border-red-300 bg-red-50">
+      <div class="text-red-900 font-medium">Summary generation failed.</div>
+      <% if pull_request.ai_metadata["last_error"].present? %>
+        <pre class="text-xs mt-2 text-red-800 whitespace-pre-wrap"><%= pull_request.ai_metadata["last_error"] %></pre>
+      <% end %>
+    </div>
+  <% end %>
+</section>

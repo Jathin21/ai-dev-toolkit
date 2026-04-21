@@ -1,0 +1,6 @@
+<% klass = case repo.indexing_status
+            when "completed" then "pill-ok"
+            when "failed"    then "pill-err"
+            else                  "pill-warn"
+            end %>
+<span class="<%= klass %>"><%= repo.indexing_status %></span>

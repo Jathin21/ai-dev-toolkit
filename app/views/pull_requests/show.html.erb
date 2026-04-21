@@ -1,0 +1,31 @@
+<% content_for :title, "#{@pull_request.title} — #{@repository.full_name}##{@pull_request.number}" %>
+
+<%= turbo_stream_from "pull_request_#{@pull_request.id}" %>
+
+<div class="mb-6">
+  <div class="text-sm text-ink/60">
+    <%= link_to "Repositories", repositories_path, class: "hover:text-accent" %> /
+    <%= link_to @repository.full_name, @repository, class: "hover:text-accent font-mono" %> /
+    <%= link_to "Pull requests", repository_pull_requests_path(@repository), class: "hover:text-accent" %>
+  </div>
+  <h1 class="text-2xl font-semibold mt-1">
+    <span class="text-ink/40 font-mono">#<%= @pull_request.number %></span>
+    <%= @pull_request.title %>
+  </h1>
+
+  <div class="mt-2 flex items-center gap-2 text-sm text-ink/60">
+    <span class="pill"><%= @pull_request.state %></span>
+    <%= render "shared/ai_status_pill", pr: @pull_request %>
+    <span>by <%= @pull_request.author_login %></span>
+    <span>· +<%= @pull_request.additions %>/−<%= @pull_request.deletions %> across <%= @pull_request.changed_files %> files</span>
+  </div>
+</div>
+
+<%= render "summary", pull_request: @pull_request %>
+
+<% if @pull_request.body.present? %>
+  <section class="mt-8">
+    <h2 class="text-lg font-semibold mb-2">Original description</h2>
+    <div class="card prose max-w-none whitespace-pre-wrap text-sm"><%= @pull_request.body %></div>
+  </section>
+<% end %>

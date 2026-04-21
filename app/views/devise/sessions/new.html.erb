@@ -1,0 +1,29 @@
+<div class="max-w-sm mx-auto mt-8">
+  <h1 class="text-2xl font-semibold mb-6">Sign in</h1>
+
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-4" }) do |f| %>
+    <div>
+      <%= f.label :email, class: "block text-sm font-medium mb-1" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email",
+            class: "w-full px-3 py-2 border border-ink/20 rounded" %>
+    </div>
+
+    <div>
+      <%= f.label :password, class: "block text-sm font-medium mb-1" %>
+      <%= f.password_field :password, autocomplete: "current-password",
+            class: "w-full px-3 py-2 border border-ink/20 rounded" %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <label class="flex items-center gap-2 text-sm">
+        <%= f.check_box :remember_me %> Remember me
+      </label>
+    <% end %>
+
+    <%= f.submit "Sign in", class: "btn-primary w-full justify-center" %>
+  <% end %>
+
+  <div class="mt-6 text-sm text-ink/60 text-center">
+    <%= link_to "Create an account", new_registration_path(resource_name), class: "hover:text-accent" %>
+  </div>
+</div>
